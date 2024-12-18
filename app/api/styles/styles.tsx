@@ -16,50 +16,25 @@ export const fontStyle = {
 
 export const container = {
   alignItems: 'center',
-  width: '100vw',
-  height: '100vh',
+  width: '100%',
+  height: '100%',
   display: 'flex',
   flexDirection: 'column',
   flexWrap: 'nowrap',
   justifyContent: 'center',
   textAlign: 'center',
+  position: 'relative',
 };
 
-export const bg = {
+export const highlight = {
+  display: 'flex',
   position: 'absolute',
-  zIndex: -1,
-  top: 0,
-  right: 0,
-};
-
-// NFT styles
-export const nftLabel = {
-  fontSize: 40,
-  fontFamily: 'Roboto',
-  fontStyle: 'normal',
-  fontWeight: 500,
-  width: '100%',
-  justifyContent: 'center',
-};
-
-export const nftContainer = {
-  display: 'flex',
-  columns: '12',
-  flexDirection: 'row',
-  flexWrap: 'nowrap',
-  height: '45%',
-  width: '100%',
-  padding: '10px',
-  justifyContent: 'space-around',
-};
-
-export const nftLabelContainer = {
-  display: 'flex',
-  flexDirection: 'row',
-  flexWrap: 'nowrap',
-  height: '5%',
-  width: '100%',
-  marginTop: '10px',
-  justifyContent: 'center',
-  textAlign: 'center',
+  zIndex: 1000,
+  top: 379, // ~83px
+  left: 523, // ~300px - 800px
+  width: 36,
+  height: 148,
+  background: 'rgba(250,0,0,0.4)',
+  // transform: 'rotate(44deg)',
+  borderRadius: 25,
 };
