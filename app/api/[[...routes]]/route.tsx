@@ -58,6 +58,16 @@ async function getUsername(fid: number | undefined) {
   );
   return result.user.username;
 }
+async function setURL(fid: number | undefined, castHash: string | undefined) {
+  // Get Username
+  if (username === '') username = await getUsername(fid);
+
+  // Create cast URL
+  if (url === '' && username !== '') {
+    const castURL = `https://warpcast.com/${username}/${castHash}`;
+    url = `${CAST_API}${castURL}`;
+  }
+}
 
 // Uncomment to use Edge Runtime
 // export const runtime = 'edge'
@@ -70,18 +80,13 @@ app.frame('/', async c => {
   if (status === 'response' && buttonValue === 'restart')
     foundWords.splice(0, foundWords.length);
 
-  // Get Username
-  if (username === '') username = await getUsername(frameData?.fid);
+  setURL(frameData?.fid, frameData?.castId.hash.slice(0, 10));
 
-  // Create cast URL
-  const castURL = `https://warpcast.com/${username}/${frameData?.castId.hash.slice(
-    0,
-    10
-  )}`;
-  if (url === '' && username !== '') url = `${CAST_API}${castURL}`;
-
+  // Check word
   const word = (inputText ?? '').toLowerCase();
   let found = wordList.includes(word);
+
+  // Generate frame
   const { image, intents } = found
     ? foundWord(word)
     : {
