@@ -26,7 +26,7 @@ export const container = {
   position: 'relative',
 };
 
-export const highlight = {
+const highlight = {
   display: 'flex',
   position: 'absolute',
   zIndex: 1000,
@@ -37,4 +37,48 @@ export const highlight = {
   background: 'rgba(250,0,0,0.4)',
   // transform: 'rotate(44deg)',
   borderRadius: 25,
+};
+
+export const highlightStyle = {
+  ethereum: {
+    ...highlight,
+    top: 306,
+    left: 443,
+    width: 310,
+    height: 34,
+    background: 'rgba(0,200,0,0.4)',
+  },
+  popcorn: {
+    ...highlight,
+    top: 234,
+    left: 360,
+    width: 359,
+    height: 34,
+    background: 'rgba(0,120,250,0.4)',
+    transform: 'rotate(44deg)',
+  },
+  token: {
+    ...highlight,
+    top: 230,
+    left: 406,
+    width: 36,
+    height: 185,
+    background: 'rgba(96, 0, 250, 0.4)',
+  },
+  wallet: {
+    ...highlight,
+    top: 156,
+    left: 795,
+    width: 35,
+    height: 222,
+    background: 'rgba(250,0,0,0.4)',
+  },
+  swap: {
+    ...highlight,
+    top: 379,
+    left: 523,
+    width: 36,
+    height: 148,
+    background: 'rgba(255, 238, 0, 0.4)',
+  },
 };
