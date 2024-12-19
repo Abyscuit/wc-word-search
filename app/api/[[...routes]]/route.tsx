@@ -6,7 +6,13 @@ import { devtools } from 'frog/dev';
 import { handle } from 'frog/next';
 import { serveStatic } from 'frog/serve-static';
 import { Roboto } from '../styles/fonts';
-import { container, highlight } from '../styles/styles';
+import { container, highlightStyle } from '../styles/styles';
+
+const CAST_API =
+  'https://warpcast.com/~/compose?text=Can%20you%20find%20all%205%20words%20in%20the%20@myetherwallet%20word%20search%3F%20%F0%9F%94%8D&embeds[]=';
+const FID2USER_API = 'https://client.warpcast.com/v2/user-by-fid?fid=';
+let username = '';
+let url = '';
 
 const app = new Frog({
   assetsPath: '/',
@@ -22,68 +28,71 @@ const app = new Frog({
   },
 });
 
-const highlightStyle = {
-  ethereum: {
-    top: 306,
-    left: 443,
-    width: 310,
-    height: 34,
-    background: 'rgba(0,200,0,0.4)',
-  },
-  popcorn: {
-    top: 234,
-    left: 360,
-    width: 359,
-    height: 34,
-    background: 'rgba(0,120,250,0.4)',
-    transform: 'rotate(44deg)',
-  },
-  token: {
-    top: 230,
-    left: 406,
-    width: 36,
-    height: 185,
-    background: 'rgba(96, 0, 250, 0.4)',
-  },
-  wallet: {
-    top: 156,
-    left: 795,
-    width: 35,
-    height: 222,
-    background: 'rgba(250,0,0,0.4)',
-  },
-  swap: {
-    top: 379,
-    left: 523,
-    width: 36,
-    height: 148,
-    background: 'rgba(255, 238, 0, 0.4)',
-  },
-};
-
+const backIntent = [<Button.Reset>Back</Button.Reset>];
 function foundWord(word: string) {
   let isNew = !foundWords.includes(word);
   if (isNew) foundWords.push(word);
+
   const numFound = foundWords.length;
-  if (numFound === wordList.length) {
-    return '/images/congrats.png';
-  }
-  return isNew ? '/images/found.png' : '/images/try-again.png';
+  if (numFound === wordList.length)
+    return {
+      image: '/images/congrats.png',
+      intents: [
+        <Button.Link href='https://www.mewwallet.com/?referrer=mew-wordsearch'>
+          Try MEW
+        </Button.Link>,
+        <Button value='restart'>Restart</Button>,
+        <Button.Link href={url}>Share</Button.Link>,
+      ],
+    };
+
+  return isNew
+    ? { image: '/images/found.png', intents: backIntent }
+    : { image: '/images/try-again.png', intents: backIntent };
+}
+
+async function getUsername(fid: number | undefined) {
+  if (fid === undefined) return '';
+  const { result } = await fetch(`${FID2USER_API}${fid}`).then(data =>
+    data.json()
+  );
+  return result.user.username;
 }
 
 // Uncomment to use Edge Runtime
 // export const runtime = 'edge'
 const wordList = ['ethereum', 'popcorn', 'swap', 'token', 'wallet'];
 const foundWords: string[] = [];
-app.frame('/', c => {
-  const { inputText, status } = c;
+app.frame('/', async c => {
+  const { inputText, status, frameData, buttonValue } = c;
+
+  //Restart game
+  if (status === 'response' && buttonValue === 'restart')
+    foundWords.splice(0, foundWords.length);
+
+  // Get Username
+  if (username === '') username = await getUsername(frameData?.fid);
+
+  // Create cast URL
+  const castURL = `https://warpcast.com/${username}/${frameData?.castId.hash.slice(
+    0,
+    10
+  )}`;
+  if (url === '' && username !== '') url = `${CAST_API}${castURL}`;
+
   const word = (inputText ?? '').toLowerCase();
   let found = wordList.includes(word);
+  const { image, intents } = found
+    ? foundWord(word)
+    : {
+        image: '/images/try-again.png',
+        intents: backIntent,
+      };
   return c.res(
-    status === 'response' && word !== ''
+    status === 'response' && word !== '' && buttonValue !== 'restart'
       ? {
-          image: found ? foundWord(word) : '/images/try-again.png',
-          intents: [<Button.Reset>Back</Button.Reset>],
+          image: image,
+          intents: intents,
         }
       : {
           image: (
@@ -95,27 +104,27 @@ app.frame('/', c => {
                 height={'100%'}
               />
               {foundWords.includes('ethereum') ? (
-                <div style={{ ...highlight, ...highlightStyle.ethereum }}></div>
+                <div style={highlightStyle.ethereum}></div>
               ) : (
                 ''
               )}
               {foundWords.includes('popcorn') ? (
-                <div style={{ ...highlight, ...highlightStyle.popcorn }}></div>
+                <div style={highlightStyle.popcorn}></div>
               ) : (
                 ''
               )}
               {foundWords.includes('swap') ? (
-                <div style={{ ...highlight, ...highlightStyle.swap }}></div>
+                <div style={highlightStyle.swap}></div>
               ) : (
                 ''
               )}
               {foundWords.includes('token') ? (
-                <div style={{ ...highlight, ...highlightStyle.token }}></div>
+                <div style={highlightStyle.token}></div>
               ) : (
                 ''
               )}
               {foundWords.includes('wallet') ? (
-                <div style={{ ...highlight, ...highlightStyle.wallet }}></div>
+                <div style={highlightStyle.wallet}></div>
               ) : (
                 ''
               )}
