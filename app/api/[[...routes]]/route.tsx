@@ -63,7 +63,7 @@ async function setURL(fid: number | undefined, castHash: string | undefined) {
   if (username === '') username = await getUsername(fid);
 
   // Create cast URL
-  if (url === '' && username !== '') {
+  if (username !== '') {
     const castURL = `https://warpcast.com/${username}/${castHash}`;
     url = `${CAST_API}${castURL}`;
   }
@@ -80,7 +80,7 @@ app.frame('/', async c => {
   if (status === 'response' && buttonValue === 'restart')
     foundWords.splice(0, foundWords.length);
 
-  setURL(frameData?.fid, frameData?.castId.hash.slice(0, 10));
+  if (url === '') setURL(frameData?.fid, frameData?.castId.hash.slice(0, 10));
 
   // Check word
   const word = (inputText ?? '').toLowerCase();
@@ -108,31 +108,10 @@ app.frame('/', async c => {
                 width={'55%'}
                 height={'100%'}
               />
-              {foundWords.includes('ethereum') ? (
-                <div style={highlightStyle.ethereum}></div>
-              ) : (
-                ''
-              )}
-              {foundWords.includes('popcorn') ? (
-                <div style={highlightStyle.popcorn}></div>
-              ) : (
-                ''
-              )}
-              {foundWords.includes('swap') ? (
-                <div style={highlightStyle.swap}></div>
-              ) : (
-                ''
-              )}
-              {foundWords.includes('token') ? (
-                <div style={highlightStyle.token}></div>
-              ) : (
-                ''
-              )}
-              {foundWords.includes('wallet') ? (
-                <div style={highlightStyle.wallet}></div>
-              ) : (
-                ''
-              )}
+              {foundWords.map(value => (
+                // @ts-expect-error
+                <div style={highlightStyle[value]}></div>
+              ))}
             </div>
           ),
           intents: [
